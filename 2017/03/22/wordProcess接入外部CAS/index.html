@@ -24,7 +24,7 @@
 下载PhpCAS
 安装WpCas插件，修改插件配置 执行以下操作
  12345678910cp wpcas-conf-sample.php wpcas-conf.phpvim wpcas-conf.php$wpcas_options = array(       &amp;apos;cas_version&amp;apos; =&amp;gt; &amp;ap">
-<meta property="og:updated_time" content="2017-03-29T11:19:09.000Z">
+<meta property="og:updated_time" content="2017-03-29T11:37:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo">
 <meta name="twitter:description" content="技术博客接入UC_赵铂 2017-03-22
@@ -206,7 +206,7 @@
 <li><p>接入phpCAS后，点击退出登录后，无法跳转到首页</p>
 </li>
 </ol>
-<p>新增一行代码，完成跳转（通过阅读phpCAS源码）</p>
+<p>在plugin下面的wpcas里的wpcas.php文件中新增一行代码，完成跳转（通过阅读phpCAS源码）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">    function logout() &#123;</div><div class="line">            global $cas_configured;</div><div class="line"></div><div class="line">            if (!$cas_configured)</div><div class="line">                    die( __( &apos;wpCAS plugin not configured&apos;, &apos;wpcas&apos; ));</div><div class="line"></div><div class="line">//设置额跳转后的URL zhaobo 0329</div><div class="line">            phpCAS::setServerLogoutURL(get_settings(&apos;siteurl&apos;));</div><div class="line">            </div><div class="line">            phpCAS::logout( array( &apos;url&apos; =&gt; get_settings( &apos;siteurl&apos; )));</div><div class="line"></div><div class="line">            exit();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
       
 
