@@ -24,7 +24,7 @@
 下载PhpCAS
 安装WpCas插件，修改插件配置 执行以下操作
  12345678910cp wpcas-conf-sample.php wpcas-conf.phpvim wpcas-conf.php$wpcas_options = array(       &amp;apos;cas_version&amp;apos; =&amp;gt; &amp;ap">
-<meta property="og:updated_time" content="2017-03-22T13:14:37.000Z">
+<meta property="og:updated_time" content="2017-03-29T11:19:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo">
 <meta name="twitter:description" content="技术博客接入UC_赵铂 2017-03-22
@@ -201,9 +201,13 @@
 </li>
 <li>执行顺序，首先帮助同事用工号注册账号，然后才可以用UC登陆</li>
 <li>默认跳登录页</li>
-<li>如何不登录后台禁用插件<br>在测试连接passport的时候，尴尬的一幕发生了，由于没有提前注册账户，导致通过passport.lianjia.com成功登陆后没有管理员权限，无法执行其他操作，只能禁掉wpCAS插件<br>方法如下：<br>记录 WordPress 插件信息的表位于：wp_options 表中的 active_plugins 字段，active_plugins 的值记录着插件使用情况。修改该字段，将wpCAS信息删去，然后用admin账户登陆后首先给相应工号的账户创建权限，然后重启wpCAS</li>
+<li><p>如何不登录后台禁用插件<br>在测试连接passport的时候，尴尬的一幕发生了，由于没有提前注册账户，导致通过passport.lianjia.com成功登陆后没有管理员权限，无法执行其他操作，只能禁掉wpCAS插件<br>方法如下：<br>记录 WordPress 插件信息的表位于：wp_options 表中的 active_plugins 字段，active_plugins 的值记录着插件使用情况。修改该字段，将wpCAS信息删去，然后用admin账户登陆后首先给相应工号的账户创建权限，然后重启wpCAS</p>
+</li>
+<li><p>接入phpCAS后，点击退出登录后，无法跳转到首页</p>
+</li>
 </ol>
-
+<p>新增一行代码，完成跳转（通过阅读phpCAS源码）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">    function logout() &#123;</div><div class="line">            global $cas_configured;</div><div class="line"></div><div class="line">            if (!$cas_configured)</div><div class="line">                    die( __( &apos;wpCAS plugin not configured&apos;, &apos;wpcas&apos; ));</div><div class="line"></div><div class="line">//设置额跳转后的URL zhaobo 0329</div><div class="line">            phpCAS::setServerLogoutURL(get_settings(&apos;siteurl&apos;));</div><div class="line">            </div><div class="line">            phpCAS::logout( array( &apos;url&apos; =&gt; get_settings( &apos;siteurl&apos; )));</div><div class="line"></div><div class="line">            exit();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
       
 
       
