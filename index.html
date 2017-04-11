@@ -151,6 +151,162 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-解决mac雷电口上网问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/04/11/解决mac雷电口上网问题/">解决mac雷电口上网问题</a>
+    </h1>
+  
+
+        
+        <a href="/blog/2017/04/11/解决mac雷电口上网问题/" class="archive-article-date">
+  	<time datetime="2017-04-11T03:55:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-04-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>公司无线网不给力，想到花了200大洋买的thunder bolt有线接口，插上后发现不好使，怎么折腾设置都没用。错误的以为是Thunderbolt网桥设置不对，折腾了半天，发现应该设置Thunderbolt以太网，而不是设置thunderbolt网桥，但是发现根本没有 网上看到有人说可能是以前安装的以太网转USB的驱动有问题，卸载了就好使，想起以前用公司买的绿联USB转接口似乎是安装了驱动。</p>
+<p>找出了驱动安装盘，里面有个程序卸载的脚本，运行脚本后，再打开网络设置<br>现在能看到 “Thunderbolt以太网”了<br><img src="http://7xntis.com1.z0.glb.clouddn.com/%E7%BD%91%E7%BB%9C.png" alt="网络设置" title="网络设置"></p>
+<p>重启系统后，搞定！</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blog/2017/04/11/解决mac雷电口上网问题/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
+    <article id="post-netflix-一分钟系统性能分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="netflix-一分钟系统性能分析"><a href="#netflix-一分钟系统性能分析" class="headerlink" title="netflix 一分钟系统性能分析"></a>netflix 一分钟系统性能分析</h1><p>原文出处：<a href="http://techblog.netflix.com/2015/11/linux-performance-analysis-in-60s.html" title="nux Performance Analysis in 60,000 Milliseconds" target="_blank" rel="external">http://techblog.netflix.com/2015/11/linux-performance-analysis-in-60s.html</a></p>
+<p>当你登陆到一个Linux Server上去检查性能问题的时候，你会在第一分钟里检查哪些内容</p>
+<p>在netflix，我们使用海量的EC2 linux云服务器，使用大量的性能分析工具去监控和查询服务器的性能，包括 Atlas(netflix监控平台)，以及Vector(主机按需监控工具)。这些工具大部分时间都能解决我们大部分的问题，我们仍有时候需要登陆到某一服务器实例上去运行一些标准的Linux命令。</p>
+<p>在这篇文章里，Netflix性能优化组将展示一下当要去调查和优化性能问题时的头一分钟将会使用那些Linux命令</p>
+<h2 id="第一分钟：总结"><a href="#第一分钟：总结" class="headerlink" title="第一分钟：总结"></a>第一分钟：总结</h2><p>在第一分钟里，你可以通过运行下面十个命令看一下资源利用情况和正在运行的进程情况。查看一下错误和系统饱和情况，因为他们很容易解释，以及资源使用情况。饱和指的是资源超过了所能承受的程度，可以通过查看请求队列的长度和等待时间。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">uptime</div><div class="line">dmesg | tail</div><div class="line">vmstat 1</div><div class="line">mpstat -P ALL 1</div><div class="line">pidstat 1</div><div class="line">iostat -xz 1</div><div class="line">free -m</div><div class="line">sar -n DEV 1</div><div class="line">sar -n TCP,ETCP 1</div><div class="line">top</div></pre></td></tr></table></figure>
+<p>上述的一些命令需要安装<em>sysstat</em>包，这些命令显示的一些指标可以帮助你完成 USE Method:一个定位系统性能瓶颈的方法学。检查资源使用情况，资源饱和情况，以及资源错误指标（CPUs,内容，硬盘等等）。同样要注意当你已经通过缩小范围，通过检查和排除了一些资源、</p>
+<p>下面几节总结了一下这些命令，通过一些生产环境的例子。想了解更多关于这些工具的信息，请查看man页面</p>
+<h3 id="1-uptime"><a href="#1-uptime" class="headerlink" title="1.uptime"></a>1.uptime</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ uptime</div><div class="line"> 23:51:26 up 21:31,  1 user,  load average: 30.02, 26.43, 19.02</div></pre></td></tr></table></figure>
+<p>这是一个快速查看平均负载的方法，该命令显示了有多少个任务（进程）想要运行。在Linux系统里，数量标识了想要枪战CPU的进程，以及被不可终端I/O（uninterruptible I/O）(通常是磁盘I/O）阻塞的进程。从较高的维度显示了资源负载（或者demond）,但是如果不借助其他工具，可能不能很清楚的定位问题。但是值得快速的看一下</p>
+<p>这三个数字按照1分钟，5分钟，15分钟常量成指数衰减，这三个数显示了负载的随时间变化情况。例如，如果你呗要求检查一个有问题的服务器，一分钟负载远低于十五分钟负载，可能你登进来查看问题已经有点太晚了以至于错过了问题发生的时间。</p>
+<p>在上面的例子中，负载显示了一直在增加，很可能CPU demand,vmstat 或者mpstat将证明这一点，请参考命令3和命令4</p>
+<h3 id="2-dmesg-tail"><a href="#2-dmesg-tail" class="headerlink" title="2. dmesg | tail"></a>2. dmesg | tail</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ dmesg | tail</div><div class="line">[1880957.563150] perl invoked oom-killer: gfp_mask=0x280da, order=0, oom_score_adj=0</div><div class="line">[...]</div><div class="line">[1880957.563400] Out of memory: Kill process 18694 (perl) score 246 or sacrifice child</div><div class="line">[1880957.563408] Killed process 18694 (perl) total-vm:1972392kB, anon-rss:1953348kB, file-rss:0kB</div><div class="line">[2320864.954447] TCP: Possible SYN flooding on port 7001. Dropping request.  Check SNMP counters.</div></pre></td></tr></table></figure>
+<p>这条命令显示了最近的十条系统命令，通过这条命令可以查找引起系统性能问题的原因，上面的例子里显示了oom-killer，以及TCP丢掉请求</p>
+<p><em>不要落掉这一步</em>dmesg通常都很值得查看</p>
+<h3 id="3-vmstat-1"><a href="#3-vmstat-1" class="headerlink" title="3.vmstat 1"></a>3.vmstat 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ vmstat 1</div><div class="line">procs ---------memory---------- ---swap-- -----io---- -system-- ------cpu-----</div><div class="line"> r  b swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</div><div class="line">34  0    0 200889792  73708 591828    0    0     0     5    6   10 96  1  3  0  0</div><div class="line">32  0    0 200889920  73708 591860    0    0     0   592 13284 4282 98  1  1  0  0</div><div class="line">32  0    0 200890112  73708 591860    0    0     0     0 9501 2154 99  1  0  0  0</div><div class="line">32  0    0 200889568  73712 591856    0    0     0    48 11900 2459 99  0  0  0  0</div><div class="line">32  0    0 200890208  73712 591860    0    0     0     0 15898 4840 98  1  1  0  0</div><div class="line">^C</div></pre></td></tr></table></figure>
+<p>查看虚拟内存状态，vmstat(8) 通常是一个很好用的工具（最早是十多年前BSD创造的）。这条命令在每行都打印了关键的服务器统计数据</p>
+<p>vmstat命令后面带一个参数1，打印一秒钟的一个summary。第一行输出有一些列显示了自从系统启动以后的平均值，而不是早些秒的值。对于当前时间，跳过第一行，除非你想要学习和记住那一列分别代表什么</p>
+<p>检查的列标识</p>
+<ul>
+<li>r:在CPU上运行并等待调度的进程的数量。这提供了比平均负载更好的查看CPU饱和度的方法。因为不包括I/O，解释一下：当r列值大于CPU数量时，CPU处于饱和状态</li>
+<li>free:空闲的内存量（kb为单位），如果有很多的数字，你拥有足够多的空闲内存。free -m 命令，（include as command 7），更好的解释了空闲内存的状态</li>
+<li>si,so:Swap-ins和Swaps-out.如果非0，则表示你已经耗尽了内存</li>
+<li>us,sy,id,wa,st:统计的是所有CPU的平均时间，他们是用户时间（user time），系统时间（system time），空闲时间（idle），等待磁盘I/O时间以及 stolen time（被强占时间？）（被其他用户，或者Xen，the guest’s own isolated driver domain）</li>
+</ul>
+<p>通过用户时间+系统时间，我们可以确认CPU是否目前很繁忙。一个常量的等待I/O的时间点显示了磁盘资源的瓶颈；因此CPUs处于空闲状态，任务被等待磁盘I/O完成所阻塞。你可以把等待I/O看做另外一种CPU空闲的情况，一种为何CPU处于空闲状态的线索。</p>
+<p>系统时间是必须的，对于I/O处理来讲，高的系统平均时间，例如，超过20%，值得继续查找原因，可能是内核处理I/O无效导致的。</p>
+<p>通过上面的例子，CPU时间通常在用户级，指出了一个用户应用，CPUs通常超过90%的平均使用，这可能不是一个问题，检查r列的CPU饱和程度</p>
+<h3 id="4-mpstat-P-ALL-1"><a href="#4-mpstat-P-ALL-1" class="headerlink" title="4.mpstat -P ALL 1"></a>4.mpstat -P ALL 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ mpstat -P ALL 1</div><div class="line">Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015  _x86_64_ (32 CPU)</div><div class="line"></div><div class="line">07:38:49 PM  CPU   %usr  %nice   %sys %iowait   %irq  %soft  %steal  %guest  %gnice  %idle</div><div class="line">07:38:50 PM  all  98.47   0.00   0.75    0.00   0.00   0.00    0.00    0.00    0.00   0.78</div><div class="line">07:38:50 PM    0  96.04   0.00   2.97    0.00   0.00   0.00    0.00    0.00    0.00   0.99</div><div class="line">07:38:50 PM    1  97.00   0.00   1.00    0.00   0.00   0.00    0.00    0.00    0.00   2.00</div><div class="line">07:38:50 PM    2  98.00   0.00   1.00    0.00   0.00   0.00    0.00    0.00    0.00   1.00</div><div class="line">07:38:50 PM    3  96.97   0.00   0.00    0.00   0.00   0.00    0.00    0.00    0.00   3.03</div><div class="line">[...]</div></pre></td></tr></table></figure>
+<p>这个命令打印了每个CPU的空闲时间，这个命令可以检查CPU是否不平衡，一个单独的过热的CPU是某个单独现成应用异常的标志</p>
+<h3 id="5-pidstat-1"><a href="#5-pidstat-1" class="headerlink" title="5.pidstat 1"></a>5.pidstat 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ pidstat 1</div><div class="line">Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015    _x86_64_    (32 CPU)</div><div class="line"></div><div class="line">07:41:02 PM   UID       PID    %usr %system  %guest    %CPU   CPU  Command</div><div class="line">07:41:03 PM     0         9    0.00    0.94    0.00    0.94     1  rcuos/0</div><div class="line">07:41:03 PM     0      4214    5.66    5.66    0.00   11.32    15  mesos-slave</div><div class="line">07:41:03 PM     0      4354    0.94    0.94    0.00    1.89     8  java</div><div class="line">07:41:03 PM     0      6521 1596.23    1.89    0.00 1598.11    27  java</div><div class="line">07:41:03 PM     0      6564 1571.70    7.55    0.00 1579.25    28  java</div><div class="line">07:41:03 PM 60004     60154    0.94    4.72    0.00    5.66     9  pidstat</div><div class="line"></div><div class="line">07:41:03 PM   UID       PID    %usr %system  %guest    %CPU   CPU  Command</div><div class="line">07:41:04 PM     0      4214    6.00    2.00    0.00    8.00    15  mesos-slave</div><div class="line">07:41:04 PM     0      6521 1590.00    1.00    0.00 1591.00    27  java</div><div class="line">07:41:04 PM     0      6564 1573.00   10.00    0.00 1583.00    28  java</div><div class="line">07:41:04 PM   108      6718    1.00    0.00    0.00    1.00     0  snmp-pass</div><div class="line">07:41:04 PM 60004     60154    1.00    4.00    0.00    5.00     9  pidstat</div><div class="line">^C</div></pre></td></tr></table></figure>
+<p>Pidstat有点像是top命令的每一进程的总结，但是是以滚动总结而不是清屏的方式显示。当需要随着时间来观察的时候显得很有用，同时通过复制粘贴将你所看到的记录到了你所调查的</p>
+<p>上面的例子支出了两个JAVA进程正在大量消耗CPU，%CPU一列显示了所有CPU的通的消耗，1591%显示了JAVA进程消耗了大概16个CPU</p>
+<h3 id="6-iostat-xz-1"><a href="#6-iostat-xz-1" class="headerlink" title="6.iostat -xz 1"></a>6.iostat -xz 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ iostat -xz 1</div><div class="line">Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015  _x86_64_ (32 CPU)</div><div class="line"></div><div class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</div><div class="line">          73.96    0.00    3.73    0.03    0.06   22.21</div><div class="line"></div><div class="line">Device:   rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</div><div class="line">xvda        0.00     0.23    0.21    0.18     4.52     2.08    34.37     0.00    9.98   13.80    5.42   2.44   0.09</div><div class="line">xvdb        0.01     0.00    1.02    8.94   127.97   598.53   145.79     0.00    0.43    1.78    0.28   0.25   0.25</div><div class="line">xvdc        0.01     0.00    1.02    8.86   127.79   595.94   146.50     0.00    0.45    1.82    0.30   0.27   0.26</div><div class="line">dm-0        0.00     0.00    0.69    2.32    10.47    31.69    28.01     0.01    3.23    0.71    3.98   0.13   0.04</div><div class="line">dm-1        0.00     0.00    0.00    0.94     0.01     3.78     8.00     0.33  345.84    0.04  346.81   0.01   0.00</div><div class="line">dm-2        0.00     0.00    0.09    0.07     1.35     0.36    22.50     0.00    2.55    0.23    5.62   1.78   0.03</div><div class="line">[...]</div><div class="line">^C</div></pre></td></tr></table></figure>
+<p>这个命令对于理解被阻塞的设备（硬盘）很有帮助，既有工作负载，又有性能结果</p>
+<ul>
+<li>r/s, w/s, rkB/s, wkB/s：这些是每秒钟deliver到磁盘设备的读，写，读到的Kb数，写的Kb数量。描述了磁盘设备的工作负载。性能问题可能是由于过载引起的。</li>
+<li>await:I/O的平均时间（毫秒），显示了应用消耗的时间，既包含等待时间，又包含被设备服务的时间。超过期望的平均时间，可能指出了设备饱和或者设备出现了问题</li>
+<li>avgqu-sz：请求到设备的数量，大于1的值可能表示设备饱和（尽管设备可能典型的运行在并行模式，特别是虚拟设备，后面有很多真实设备）</li>
+<li>%util:设备使用率，标识了busy的百分比，显示了每秒钟设备运行的时间，大于60%表示设备使用率不高（可以从await看到），尽管跟设备有关。接近100%通常标识设备饱和</li>
+</ul>
+<p>如果存储设备是一个逻辑硬盘，背后有很多物理的硬盘，100%使用率可能仅仅表示一些I/O时间是100%,背后的真实硬盘可能离100%饱和还远，可能还可以处理更多的工作。</p>
+<p>记住，不好的磁盘I/O可能不一定是应用问题，很多技术都会异步使用I/O，所以应用并不会阻塞并被延迟（例如，提前读，延迟写）</p>
+<h3 id="7-free-m"><a href="#7-free-m" class="headerlink" title="7. free -m"></a>7. free -m</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ free -m</div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:        245998      24545     221453         83         59        541</div><div class="line">-/+ buffers/cache:      23944     222053</div><div class="line">Swap:            0          0          0</div></pre></td></tr></table></figure>
+<p>右边的两列：</p>
+<ul>
+<li>buffers: buffer缓存，用于阻塞I/O设备</li>
+<li>cached: 页面缓存，用于文件系统</li>
+</ul>
+<p>我们想要检查一下这些值不是接近于0的值，如果是的话，标识磁盘I/O很高（通过iostat来确认）。上述的例子中情况比较好，还剩余很多M字节的空间</p>
+<p>“-/+ buffers/cache” 较容易理解，标识使用和空闲的内存，Linux将空闲的内存用于缓存，但是当应用需要的时候可以快速回收，所以在某种程度上，缓存内存（the cached memory）应该被包括在空闲内存一列。这块儿有一个网站，专门指出了这块儿令人困惑的地方  linuxatemyram</p>
+<p>如果Linux使用了ZFS，会造成更大的困扰，因为ZFS有自己单独的文件系统缓存并且不能很好的被free -m 一列所展现出来。很可能出现系统的可用内存很低，但是事实上，如果需要的话，可以从ZFS的缓存转换成可用内存</p>
+<h3 id="8-sar-n-DEV-1"><a href="#8-sar-n-DEV-1" class="headerlink" title="8.sar -n DEV 1"></a>8.sar -n DEV 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ sar -n DEV 1</div><div class="line">Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015     _x86_64_    (32 CPU)</div><div class="line"></div><div class="line">12:16:48 AM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil</div><div class="line">12:16:49 AM      eth0  18763.00   5032.00  20686.42    478.30      0.00      0.00      0.00      0.00</div><div class="line">12:16:49 AM        lo     14.00     14.00      1.36      1.36      0.00      0.00      0.00      0.00</div><div class="line">12:16:49 AM   docker0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line"></div><div class="line">12:16:49 AM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil</div><div class="line">12:16:50 AM      eth0  19763.00   5101.00  21999.10    482.56      0.00      0.00      0.00      0.00</div><div class="line">12:16:50 AM        lo     20.00     20.00      3.25      3.25      0.00      0.00      0.00      0.00</div><div class="line">12:16:50 AM   docker0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line">^C</div></pre></td></tr></table></figure>
+<p>这条命令可以检查网络接口的吞吐量：rxkB/s以及txkB/s，作为工作负载的一个指标，同时也可以检查是否系统遇到了一些限制。在上面的例子中，eth0接收达到了22M字节/s，换算过来就是176Mbits/s(在1Gbit/s的限制下)</p>
+<p>这个版本也有%ifutil 系统使用（双方向全工），我们也可应使用Brendan’s nicstat tool来进行测量。并且和nicstat一样，很难弄对，并且在这个例子里不适用</p>
+<h3 id="9-sar-n-TCP-ETCP-1"><a href="#9-sar-n-TCP-ETCP-1" class="headerlink" title="9.sar -n TCP,ETCP 1"></a>9.sar -n TCP,ETCP 1</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ sar -n TCP,ETCP 1</div><div class="line">Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015    _x86_64_    (32 CPU)</div><div class="line"></div><div class="line">12:17:19 AM  active/s passive/s    iseg/s    oseg/s</div><div class="line">12:17:20 AM      1.00      0.00  10233.00  18846.00</div><div class="line"></div><div class="line">12:17:19 AM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s</div><div class="line">12:17:20 AM      0.00      0.00      0.00      0.00      0.00</div><div class="line"></div><div class="line">12:17:20 AM  active/s passive/s    iseg/s    oseg/s</div><div class="line">12:17:21 AM      1.00      0.00   8359.00   6039.00</div><div class="line"></div><div class="line">12:17:20 AM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s</div><div class="line">12:17:21 AM      0.00      0.00      0.00      0.00      0.00</div><div class="line">^C</div></pre></td></tr></table></figure>
+<p>这个命令显示了一些TCP的关键指标，包括</p>
+<ul>
+<li>active/s:每秒钟本地建立的TCP连接数量</li>
+<li>passive/s：每秒钟远端建立的TCP连接数量</li>
+<li>retrans/s：每秒钟TCP发送数量</li>
+</ul>
+<p>active和passive数量通常来讲很有用，他们能粗略的衡量出服务器的负载情况，新接收的连接数量（被动模式），以及下游连接数量（主动模式），或者我们可以将主动模式用outbound描述，被动模式用inbound描述，但这并不是完全正确（例如本地对本地的连接）</p>
+<p>转发量是一个网络或者服务器问题的信号，或者是由于不可靠的网络（比如公共网），或是由于服务器过载，或者是因为服务器过载或者丢包。上面的例子中，每秒只有一个新的TCP连接</p>
+<h3 id="10-top"><a href="#10-top" class="headerlink" title="10. top"></a>10. top</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ top</div><div class="line">top - 00:15:40 up 21:56,  1 user,  load average: 31.09, 29.87, 29.92</div><div class="line">Tasks: 871 total,   1 running, 868 sleeping,   0 stopped,   2 zombie</div><div class="line">%Cpu(s): 96.8 us,  0.4 sy,  0.0 ni,  2.7 id,  0.1 wa,  0.0 hi,  0.0 si,  0.0 st</div><div class="line">KiB Mem:  25190241+total, 24921688 used, 22698073+free,    60448 buffers</div><div class="line">KiB Swap:        0 total,        0 used,        0 free.   554208 cached Mem</div><div class="line"></div><div class="line">   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</div><div class="line"> 20248 root      20   0  0.227t 0.012t  18748 S  3090  5.2  29812:58 java</div><div class="line">  4213 root      20   0 2722544  64640  44232 S  23.5  0.0 233:35.37 mesos-slave</div><div class="line"> 66128 titancl+  20   0   24344   2332   1172 R   1.0  0.0   0:00.07 top</div><div class="line">  5235 root      20   0 38.227g 547004  49996 S   0.7  0.2   2:02.74 java</div><div class="line">  4299 root      20   0 20.015g 2.682g  16836 S   0.3  1.1  33:14.42 java</div><div class="line">     1 root      20   0   33620   2920   1496 S   0.0  0.0   0:03.82 init</div><div class="line">     2 root      20   0       0      0      0 S   0.0  0.0   0:00.02 kthreadd</div><div class="line">     3 root      20   0       0      0      0 S   0.0  0.0   0:05.35 ksoftirqd/0</div><div class="line">     5 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H</div><div class="line">     6 root      20   0       0      0      0 S   0.0  0.0   0:06.94 kworker/u256:0</div><div class="line">     8 root      20   0       0      0      0 S   0.0  0.0   2:38.05 rcu_sched</div></pre></td></tr></table></figure>
+<p>top命令包含了前面的一些命令的指标，运行这条命令可以很方便的看一下是否有些指标和前面运行的命令有很大的不同，可能会看出负载正在变化</p>
+<p>top命令一个不好的地方就是很难随着时间的变化看到模式的变化。而用vmstat和pidstat命令可以很好的看出来，因为这两个命令提供了滚动刷新。由于这个命令会清屏，如果你停止输出不够快的话（Ctrl-S 停止，Ctrl-Q继续），间歇性的问题也很难看出来。</p>
+<h3 id="进一步的分析"><a href="#进一步的分析" class="headerlink" title="进一步的分析"></a>进一步的分析</h3><p>你可以使用很多命令和方法来进一步深入查询问题，可以查看Brendan的 <a href="http://techblog.netflix.com/2015/08/netflix-at-velocity-2015-linux.html" title="Linux Performance Tools tutorial" target="_blank" rel="external">Linux Performance Tools tutorial</a>（Velocity 2015）,里面介绍了40中命令，涵盖了包括问题查看，基准，静态性能调优，问题分析以及追踪等</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blog/2017/04/07/netflix-一分钟系统性能分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-PHP相关项目分支管理策略" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
